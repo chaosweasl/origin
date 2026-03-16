@@ -1,50 +1,61 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useAppStore } from "./lib/store";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const { loadStore } = useAppStore();
+  const location = useLocation();
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  useEffect(() => {
+    loadStore();
+  }, []);
+
+  const navLinks = [
+    { name: "Dashboard", path: "/" },
+    { name: "Flashcards", path: "/flashcards" },
+    { name: "Quiz", path: "/quiz" },
+    { name: "Journal", path: "/journal" },
+    { name: "Cheatsheets", path: "/cheatsheets" },
+    { name: "Focus Mode", path: "/focus" },
+    { name: "Settings", path: "/settings" },
+  ];
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-border bg-card flex flex-col">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold tracking-tight">Student OS</h1>
+        </div>
+        <nav className="flex-1 px-4 space-y-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              to={link.path}
+              className={cn(
+                "block px-4 py-2 rounded-md transition-colors",
+                location.pathname === link.path
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </nav>
+      </aside>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto bg-background">
+        <Outlet />
+      </main>
+    </div>
   );
 }
 

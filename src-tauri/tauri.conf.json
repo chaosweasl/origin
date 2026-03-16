@@ -1,23 +1,26 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
   "productName": "origin",
   "version": "0.1.0",
-  "identifier": "com.virtu.origin",
+  "identifier": "com.origin.app",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
   "app": {
     "windows": [
       {
-        "title": "origin",
-        "width": 800,
-        "height": 600
+        "title": "Student OS",
+        "width": 1200,
+        "height": 800
       }
     ],
     "security": {
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      },
       "csp": null
     }
   },
