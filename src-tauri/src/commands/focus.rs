@@ -1,7 +1,8 @@
 use tauri::command;
+#[cfg(target_os = "windows")]
 use sysinfo::System;
 #[cfg(target_os = "windows")]
-use windows::Win32::Foundation::{HANDLE, CloseHandle};
+use windows::Win32::Foundation::CloseHandle;
 #[cfg(target_os = "windows")]
 use windows::Win32::System::Threading::{OpenThread, SuspendThread, ResumeThread, THREAD_SUSPEND_RESUME};
 #[cfg(target_os = "windows")]
@@ -34,8 +35,9 @@ pub fn set_dnd(enabled: bool) -> Result<(), String> {
 
     // Simplest way to toggle via powershell
     let script = format!(
-        "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_TOASTS_ENABLED' -Value {};",
-        if enabled { 0 } else { 1 }
+        "{} \
+        Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_TOASTS_ENABLED' -Value {};",
+        powershell_cmd, value
     );
 
     std::process::Command::new("powershell")
@@ -46,6 +48,7 @@ pub fn set_dnd(enabled: bool) -> Result<(), String> {
     Ok(())
 }
 
+#[allow(unused_variables)]
 fn control_process(app_name: &str, suspend: bool) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     {
@@ -53,7 +56,7 @@ fn control_process(app_name: &str, suspend: bool) -> Result<(), String> {
         sys.refresh_all();
 
         for (pid, process) in sys.processes() {
-            if process.name().to_lowercase().contains(&app_name.to_lowercase()) {
+            if process.name().to_string_lossy().to_lowercase().contains(&app_name.to_lowercase()) {
                 unsafe {
                     let snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0).map_err(|e| e.to_string())?;
                     let mut te32 = THREADENTRY32 {
