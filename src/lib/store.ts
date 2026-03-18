@@ -22,8 +22,8 @@ interface AppState {
   focusAudioPath: string | null;
   setFocusAudioPath: (path: string) => void;
 
-  anthropicApiKey: string | null;
-  setAnthropicApiKey: (key: string) => void;
+  geminiApiKey: string | null;
+  setGeminiApiKey: (key: string) => void;
 
   pomodoroWorkDuration: number;
   setPomodoroWorkDuration: (duration: number) => void;
@@ -69,10 +69,10 @@ export const useAppStore = create<AppState>((set) => ({
     await storePlugin.save();
   },
 
-  anthropicApiKey: null,
-  setAnthropicApiKey: async (key) => {
-    set({ anthropicApiKey: key });
-    await storePlugin.set('anthropicApiKey', key);
+  geminiApiKey: null,
+  setGeminiApiKey: async (key) => {
+    set({ geminiApiKey: key });
+    await storePlugin.set('geminiApiKey', key);
     await storePlugin.save();
   },
 
@@ -96,7 +96,7 @@ export const useAppStore = create<AppState>((set) => ({
       const w = await storePlugin.get<string>('focusWallpaperPath');
       const ab = await storePlugin.get<string[]>('focusAppsToBlock');
       const au = await storePlugin.get<string>('focusAudioPath');
-      const ak = await storePlugin.get<string>('anthropicApiKey');
+      const gk = await storePlugin.get<string>('geminiApiKey');
       const pwd = await storePlugin.get<number>('pomodoroWorkDuration');
       const pbd = await storePlugin.get<number>('pomodoroBreakDuration');
 
@@ -104,7 +104,7 @@ export const useAppStore = create<AppState>((set) => ({
       if (w) set({ focusWallpaperPath: w });
       if (ab) set({ focusAppsToBlock: ab });
       if (au) set({ focusAudioPath: au });
-      if (ak) set({ anthropicApiKey: ak });
+      if (gk) set({ geminiApiKey: gk });
       if (pwd) set({ pomodoroWorkDuration: pwd });
       if (pbd) set({ pomodoroBreakDuration: pbd });
     } catch (e) {
